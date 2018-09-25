@@ -1,0 +1,142 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[RequireComponent(typeof(SpriteRenderer))] //RequireComponent tells unity to create a componanet "unity must do this action" of type "SpriteRenderer" to the game opject whcih is attached to this script
+public class GroundScript : MonoBehaviour
+{
+    public Texture2D baseTexture; //the ground texture which well be modified later by thsi script
+    Texture2D cloneTexture; //this is a copy of the texture for later use in the script
+    SpriteRenderer sr; //we name our SpriteRenderer componanet sr for later use in this script
+
+    float widthWorld, heightWorld; //these two variables will carry the width,height of our texture measured in unity units which you can specify when you import your texture  
+    int widthPixel, heightPixel; //these two variables will carry the width,height of our texture measured in pixles
+
+    public float WidthWorld //a getter function that gets the width of our texture measured in unity units
+    {
+        get
+        {
+            if (widthWorld == 0)
+                widthWorld = sr.bounds.size.x;
+            return widthWorld;
+        }
+
+    }
+
+    public float HeightWorld //a getter function that gets the height of our texture measured in unity units
+    {
+        get
+        {
+            if (heightWorld == 0)
+                heightWorld = sr.bounds.size.y;
+            return heightWorld;
+        }
+
+    }
+
+    public int WidthPixel { //a getter function that gets the width of our texture measured in pixles
+        get
+        {
+            if (widthPixel == 0)
+                widthPixel = sr.sprite.texture.width;
+
+            return widthPixel;
+        }
+    }
+
+    public int HeightPixel //a getter function that gets the width of our texture measured in pixles
+    {
+        get
+        {
+            if (heightPixel == 0)
+                heightPixel = sr.sprite.texture.height;
+
+            return heightPixel;
+        }
+    }
+
+    void Start () 
+    {
+        sr = GetComponent<SpriteRenderer>(); // sr is know equal to the SpriteRenderer Game Component of the game object 
+        cloneTexture = Instantiate(baseTexture); // the cloneTexture spawns with the base Texture refrence provaided manualy by us
+        cloneTexture.alphaIsTransparency = true; //for more info on this line check thsi link it very detailed https://docs.unity3d.com/Manual/TextureTypes.html
+
+        if (cloneTexture.format != TextureFormat.ARGB32)  //need more info on this line 
+            Debug.LogWarning("Texture must be ARGB32");
+        if (cloneTexture.wrapMode != TextureWrapMode.Clamp) //need more info on this line 
+            Debug.LogWarning("wrapMode must be Clamp");
+
+        UpdateTexture(); // call for user made function UpdateTexture
+        gameObject.AddComponent<PolygonCollider2D>(); //a gameComponanet "PolygonCollider: a type of collider which can be modified using a script or manualy" is added to the game object 
+        // PS: in this script the polygon collider won't be modified manualy but it will be modified using a line of code
+	}
+
+    void MakeAHole(CircleCollider2D col) // a function which is called when OnTriggerEnter2D is triggered by an event such as collision between this game object and a bullet0 
+    {
+        print(string.Format("{0},{1},{2},{3}", WidthPixel, HeightPixel, WidthWorld, heightWorld));
+
+
+        
+        Vector2Int c = World2Pixel(col.bounds.center); //Representation of 2D vectors and points using integers ,so know c is a 2d vector x,y which has the same value of the center of the object which has collided with this game object
+        int r = Mathf.RoundToInt(col.bounds.size.x * WidthPixel / WidthWorld); //Returns f rounded to the nearest integer ,so know r is an int which has the same value of the the x value of the center of the object which has collided with this game object multiplied with this (WidthPixel / WidthWorld) 
+
+        //this is the important part so basicly what he is doing is itrating around the area which he has specified so that he can clear every pixle or erase so these 2 for loop work like an eraser for the texture just like in paint i think xD
+
+        int px, nx, py, ny, d;
+        for (int i = 0; i <= r; i++)
+        {
+            d = Mathf.RoundToInt(Mathf.Sqrt(r * r - i * i));
+            for (int j = 0; j <= d; j++)
+            {
+                px = c.x + i;
+                nx = c.x - i;
+                py = c.y + j;
+                ny = c.y - j;
+
+                cloneTexture.SetPixel(px, py, Color.clear);
+                cloneTexture.SetPixel(nx, py, Color.clear);
+                cloneTexture.SetPixel(px, ny, Color.clear);
+                cloneTexture.SetPixel(nx, ny, Color.clear);
+            }
+        }
+        cloneTexture.Apply(); //after he is done with eraing you need to applay it in real time on the texture
+        UpdateTexture(); // and also update the texture 
+
+        Destroy(gameObject.GetComponent<PolygonCollider2D>()); 
+        gameObject.AddComponent<PolygonCollider2D>(); //after that he destroys the polygon and adds another one with this line previously mentioned before allows us to "modify" the polygon to fit our new texture and environment 
+    }
+
+    void UpdateTexture()
+    {
+        sr.sprite = Sprite.Create(cloneTexture,
+                            new Rect(0, 0, cloneTexture.width, cloneTexture.height),
+                            new Vector2(0.5f, 0.5f), 
+                            50f
+                            );
+    }
+
+    Vector2Int World2Pixel(Vector2 pos)
+    {
+        Vector2Int v = Vector2Int.zero;
+
+        var dx = (pos.x - transform.position.x);
+        var dy = (pos.y - transform.position.y);
+
+        v.x = Mathf.RoundToInt(0.5f * WidthPixel + dx * (WidthPixel / WidthWorld));
+        v.y = Mathf.RoundToInt(0.5f * HeightPixel + dy * (HeightPixel / HeightWorld));
+
+        return v;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+
+        if (!collision.CompareTag("Explosion"))
+            return;
+        if (!collision.GetComponent<CircleCollider2D>())
+            return;
+
+        MakeAHole(collision.GetComponent<CircleCollider2D>());
+        Destroy(collision.gameObject, 0.1f);
+    }
+}
