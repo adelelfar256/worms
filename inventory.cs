@@ -22,7 +22,11 @@ public GameObject MyInventory;
 	// Update is called once per frame
 	void Update () {
 	  
+if(Input.GetKeyDown(KeyCode.Escape))
+{
+	MyInventory.SetActive(false);
 
+}
 	}
 	public void ShowInv()
 	{
