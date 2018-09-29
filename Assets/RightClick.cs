@@ -4,32 +4,34 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class RightClick : MonoBehaviour,IPointerDownHandler,IPointerUpHandler {
+public class RightClick : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+{
 
-public GameObject go;
-	// Use this for initialization
-	 bool pressed = false;
-	bool r=false,l=false;
-	void Start () {
-	}
-   
-	// Update is called once per frame
-	void Update ()
+    public GameObject go;
+    // Use this for initialization
+    bool pressed = false;
+    void Start()
     {
-        Debug.Log(r);
-if(r==true)
-go.transform.Translate(0.01f,0.0f,0.0f);
-
-	}
-
-		 public void OnPointerDown(PointerEventData eventData)
-    {
-      r=true;
     }
- 
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (pressed == true)
+        {
+            if (go.transform.position.x < 2.35f)
+                go.transform.Translate(0.01f, 0.0f, 0.0f);
+        }
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        pressed = true;
+    }
+
     public void OnPointerUp(PointerEventData eventData)
     {
-		
-r=false;
+
+        pressed = false;
     }
 }

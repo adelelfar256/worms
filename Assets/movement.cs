@@ -16,8 +16,7 @@ public class movement : MonoBehaviour {
 	
 	public void MoveRight()
 	{
-		        transform.Translate(0.1f, 0, 0);
-
+	
 
 	}
 	void MoveLeft()
