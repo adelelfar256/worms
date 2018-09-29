@@ -20,12 +20,13 @@ public class LeftClick : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         if (pressed == true)
         {
             if (go.transform.position.x > -2.35f)
-                go.transform.Translate(-0.01f, 0.0f, 0.0f);
+                go.transform.Translate(0.01f, 0.0f, 0.0f);
         }
     }
     public void OnPointerDown(PointerEventData eventData)
     {
         pressed = true;
+        go.transform.rotation=Quaternion.Euler(0,180,0);
     }
 
     public void OnPointerUp(PointerEventData eventData)
