@@ -27,6 +27,8 @@ public class RightClick : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public void OnPointerDown(PointerEventData eventData)
     {
         pressed = true;
+        go.transform.rotation=Quaternion.Euler(0,0,0);
+
     }
 
     public void OnPointerUp(PointerEventData eventData)
