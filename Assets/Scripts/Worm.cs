@@ -2,47 +2,73 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Worm : MonoBehaviour {
-
+public class Worm : MonoBehaviour
+{
+    static float cool=3;
+    static float t = 10;
+    public int id = 1;
+    public static int turn = 1;
+    bool fire = true;
     public Rigidbody2D bulletPrefab;
     public Transform Gun;
     SpriteRenderer ren;
     public float BulletForce = 5;
     public float wormSpeed = 1;
 
-    void Start () {
+    void Start()
+    {
         Gun.GetComponent<Transform>();
-        ren = GetComponent<SpriteRenderer>();        
+        ren = GetComponent<SpriteRenderer>();
     }
 
     void Update()
     {
-        RotateGun();
 
-        var hor = Input.GetAxis("Horizontal");
-        if (hor == 0)
+        t -= Time.deltaTime;
+        cool-=Time.deltaTime;
+        if (t <= 0)
         {
-            Gun.gameObject.SetActive(true);
 
-            ren.flipX = Gun.eulerAngles.z < 180;
-
-            if (Input.GetKeyDown(KeyCode.Q))
-            {
-                var p = Instantiate(bulletPrefab,
-                                    Gun.position - Gun.right,
-                                    Gun.rotation);
-
-                p.AddForce(-Gun.right * BulletForce, ForceMode2D.Impulse);
-            }
+            if (turn == 1)
+                turn = 2;
+            else
+                turn = 1;
+            t = 10;
         }
-        else
+
+
+        if (turn == id&&cool<=0)
         {
-            Gun.gameObject.SetActive(false);
-            transform.position += Vector3.right *
-                                hor *
-                                Time.deltaTime *
-                                wormSpeed;
-            ren.flipX = Input.GetAxis("Horizontal") > 0;
+            
+            RotateGun();
+
+            var hor = Input.GetAxis("Horizontal");
+            if (hor == 0)
+            {
+                Gun.gameObject.SetActive(true);
+
+                ren.flipX = Gun.eulerAngles.z < 180;
+
+                if (Input.GetKeyDown(KeyCode.Q) && fire)
+                {
+                    var p = Instantiate(bulletPrefab,
+                                        Gun.position - Gun.right,
+                                        Gun.rotation);
+
+                    p.AddForce(-Gun.right * BulletForce, ForceMode2D.Impulse);
+                    t = 1;
+                    cool=3;
+                }
+            }
+            else
+            {
+                Gun.gameObject.SetActive(false);
+                transform.position += Vector3.right *
+                                    hor *
+                                    Time.deltaTime *
+                                    wormSpeed;
+                ren.flipX = Input.GetAxis("Horizontal") > 0;
+            }
         }
     }
 
@@ -54,7 +80,7 @@ public class Worm : MonoBehaviour {
         float rot_z = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
         Gun.rotation = Quaternion.Euler(0f, 0f, rot_z + 180);
     }
-    
+
     //void RotateGun()
     //{
     //    Vector3 MousePosition = Input.mousePosition;

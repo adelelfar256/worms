@@ -99,8 +99,8 @@ public class Terrain : MonoBehaviour
         cloneTexture.Apply();
         UpdateTexture();
 
-        Destroy(gameObject.GetComponent<PolygonCollider2D>());
-        gameObject.AddComponent<PolygonCollider2D>();
+        //Destroy(gameObject.GetComponent<PolygonCollider2D>());
+       // gameObject.AddComponent<PolygonCollider2D>();
     }
 
     void UpdateTexture()
