@@ -5,6 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public class Terrain : MonoBehaviour
 {
+    public static bool nxtTurn=true;
     public Texture2D baseTexture;
     Texture2D cloneTexture;
     SpriteRenderer sr;
@@ -98,7 +99,7 @@ public class Terrain : MonoBehaviour
         }
         cloneTexture.Apply();
         UpdateTexture();
-
+        nxtTurn=true;
         //Destroy(gameObject.GetComponent<PolygonCollider2D>());
        // gameObject.AddComponent<PolygonCollider2D>();
     }

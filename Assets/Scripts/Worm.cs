@@ -4,11 +4,16 @@ using UnityEngine;
 
 public class Worm : MonoBehaviour
 {
-    static float cool=3;
-    static float t = 10;
+    static bool forceCheck = false;
+    static bool jumpCheck = false;
+    static float force = 0;
+    static float jump = 0;
+    static float cool = 3;
+    Vector2 jumpHeight;
+
+    static float t = 30;
     public int id = 1;
     public static int turn = 1;
-    bool fire = true;
     public Rigidbody2D bulletPrefab;
     public Transform Gun;
     SpriteRenderer ren;
@@ -19,13 +24,17 @@ public class Worm : MonoBehaviour
     {
         Gun.GetComponent<Transform>();
         ren = GetComponent<SpriteRenderer>();
+        jumpHeight.x = 0;
+        jumpHeight.y = 7.0f;
     }
 
     void Update()
     {
+        if (forceCheck)
+            force += Time.deltaTime;
 
         t -= Time.deltaTime;
-        cool-=Time.deltaTime;
+        cool -= Time.deltaTime;
         if (t <= 0)
         {
 
@@ -33,13 +42,13 @@ public class Worm : MonoBehaviour
                 turn = 2;
             else
                 turn = 1;
-            t = 10;
+            t = 30;
         }
 
 
-        if (turn == id&&cool<=0)
+        if (turn == id && cool <= 0)
         {
-            
+
             RotateGun();
 
             var hor = Input.GetAxis("Horizontal");
@@ -49,15 +58,39 @@ public class Worm : MonoBehaviour
 
                 ren.flipX = Gun.eulerAngles.z < 180;
 
-                if (Input.GetKeyDown(KeyCode.Q) && fire)
+                if (Input.GetKeyDown(KeyCode.Q))
                 {
-                    var p = Instantiate(bulletPrefab,
-                                        Gun.position - Gun.right,
-                                        Gun.rotation);
+                    if(Terrain.nxtTurn)
+                    forceCheck = true;
 
-                    p.AddForce(-Gun.right * BulletForce, ForceMode2D.Impulse);
+                }
+
+                if (Input.GetKeyUp(KeyCode.Q))
+                {
+                    if(Terrain.nxtTurn)
+                    {
+                    var p = Instantiate(bulletPrefab, Gun.position - Gun.right, Gun.rotation);
+                    force *= 2;
+                    p.AddForce(-Gun.right * force * BulletForce, ForceMode2D.Impulse);
                     t = 1;
-                    cool=3;
+                    cool = 3;
+                    Debug.Log(force);
+                    forceCheck = false;
+                    force = 0;
+                    Terrain.nxtTurn=false;
+                    }
+                }
+
+                if (Input.GetKeyDown(KeyCode.Space))  //makes player jump
+                {
+                    if (jumpCheck)
+                        GetComponent<Rigidbody2D>().AddForce(jumpHeight, ForceMode2D.Impulse);
+                    jumpCheck = false;
+
+                }
+
+                if (Input.GetKeyUp(KeyCode.Space))  //makes player jump
+                {
                 }
             }
             else
@@ -71,14 +104,23 @@ public class Worm : MonoBehaviour
             }
         }
     }
-
+    void OnCollisionEnter2D(Collision2D col)
+    {
+        if (col.gameObject.name == "SpongeBob SquarePants Jelly Fields 2")
+        {
+            jumpCheck = true;
+        }
+    }
     void RotateGun()
     {
+        if(Terrain.nxtTurn)
+        {
         var diff = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
         diff.Normalize();
 
         float rot_z = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
         Gun.rotation = Quaternion.Euler(0f, 0f, rot_z + 180);
+        }
     }
 
     //void RotateGun()
