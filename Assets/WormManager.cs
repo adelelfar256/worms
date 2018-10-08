@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class WormManager : MonoBehaviour
 {
-
-
+    public GameObject c;
     int num = 2;
+    Vector3 v1,v2;
     public GameObject go;
     GameObject go1, go2;
           float t=10;
@@ -14,23 +14,28 @@ public class WormManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        go1 = (GameObject)Instantiate(go, Vector3.zero, Quaternion.identity);
-        go2 = (GameObject)Instantiate(go, Vector3.zero, Quaternion.identity);
-
-        go1.GetComponent<Worm>().id = 1;
-        go2.GetComponent<Worm>().id = 2;
+       
 
     }
 
     // Update is called once per frame
     void Update()
     {
-      t-=Time.deltaTime;
-      if(t<=0)
-      {
-        t=5;
-        
-      }
+     
+    }
+    public void StartGame()
+    {
+        c.SetActive(false);
+        v1.x=-14.0f;
+        v2.x=14.0f;
+        v1.y=1;
+        v2.y=1;
+        v1.z=1;
+        v2.z=1;
+        go1 = (GameObject)Instantiate(go,v1, Quaternion.identity);
+        go2 = (GameObject)Instantiate(go,v2, Quaternion.identity);
 
+        go1.GetComponent<Worm>().id = 1;
+        go2.GetComponent<Worm>().id = 2;
     }
 }
